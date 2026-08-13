@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108">
+  <!-- 背景圆形 -->
+  <circle cx="54" cy="54" r="50" fill="#5C6BC0"/>
+
+  <!-- 音符头 -->
+  <ellipse cx="44" cy="68" rx="12" ry="9" fill="#FFFFFF" transform="rotate(-15 44 68)"/>
+  <!-- 音符杆 -->
+  <rect x="54" y="28" width="5" height="42" rx="2" fill="#FFFFFF"/>
+  <!-- 音符旗 -->
+  <path d="M59 28 Q76 30 76 44 Q76 38 65 35 Z" fill="#FFFFFF"/>
+
+  <!-- 禁止圆环 -->
+  <circle cx="54" cy="54" r="40" fill="none" stroke="#FF5252" stroke-width="6"/>
+  <!-- 禁止斜杠 -->
+  <line x1="24" y1="84" x2="84" y2="24" stroke="#FF5252" stroke-width="6" stroke-linecap="round"/>
+</svg>
