@@ -27,8 +27,6 @@ MIUI / HyperOS 的通知栏和媒体岛播放器有 5 个按钮位，其中两�
 | 网易云音乐 | `com.netease.cloudmusic` |
 | QQ 音乐 | `com.tencent.qqmusic` |
 
-可通过配置文件添加更多包名，每行一个。
-
 ## 环境要求
 
 - **LSPosed**（官方发行版本）
@@ -42,16 +40,6 @@ MIUI / HyperOS 的通知栏和媒体岛播放器有 5 个按钮位，其中两�
 3. 重启设备
 4. 播放音乐，享受干净的播放器控件
 
-## 自定义屏蔽列表
-
-编辑配置文件（需 root）：
-
-```
-/data/user_de/0/com.ham.music_buttomBlock/files/blocked_packages.txt
-```
-
-每行一个包名，修改后重启 SystemUI 生效。
-
 ## 验证
 
 ```bash
@@ -63,8 +51,6 @@ adb logcat -s MusicButtonBlock
 ```bash
 ./gradlew :app:assembleRelease
 ```
-
-APK 位于 `app/build/outputs/apk/release/app-release.apk`
 
 ## 许可
 
