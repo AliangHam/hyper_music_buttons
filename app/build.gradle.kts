@@ -10,8 +10,8 @@ android {
         applicationId = "com.ham.music_buttomBlock"
         minSdk = 35
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 4
+        versionName = "1.0.3"
     }
 
     signingConfigs {

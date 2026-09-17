@@ -1,7 +1,5 @@
 package com.ham.music_buttomBlock;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import java.lang.reflect.Constructor;
@@ -25,7 +23,6 @@ import io.github.libxposed.api.XposedModuleInterface;
  * blocked list, clears the two custom buttons so they do not appear.
  */
 public final class ModuleMain extends XposedModule {
-    private static final String TAG = "MusicButtonBlock";
     private static final String HOOK_TARGET_CLASS =
             "com.android.systemui.media.controls.domain.pipeline.MediaActionsKt";
 
@@ -42,25 +39,18 @@ public final class ModuleMain extends XposedModule {
 
     @Override
     public void onModuleLoaded(@NonNull XposedModuleInterface.ModuleLoadedParam param) {
-        log(Log.INFO, TAG, "event=module_loaded process=" + param.getProcessName()
-                + " api=" + getApiVersion()
-                + " framework=" + getFrameworkName()
-                + " version=" + getFrameworkVersion());
     }
 
     @Override
     public void onPackageReady(@NonNull XposedModuleInterface.PackageReadyParam param) {
-        String pkg = param.getPackageName();
-        if (!"com.android.systemui".equals(pkg)) {
+        if (!"com.android.systemui".equals(param.getPackageName())) {
             return;
         }
-        log(Log.INFO, TAG, "event=package_ready pkg=" + pkg);
         installHook(param.getClassLoader());
     }
 
     private synchronized void installHook(ClassLoader classLoader) {
         if (installed) {
-            log(Log.INFO, TAG, "event=install_skipped reason=already_installed");
             return;
         }
         try {
@@ -70,9 +60,6 @@ public final class ModuleMain extends XposedModule {
             // createActionsFromState(Context, String, MediaController, UserHandle)
             Method targetMethod = findCreateActionsMethod(actionsKt);
             if (targetMethod == null) {
-                log(Log.ERROR, TAG,
-                        "event=method_not_found class=" + HOOK_TARGET_CLASS
-                                + " method=createActionsFromState");
                 return;
             }
 
@@ -111,56 +98,28 @@ public final class ModuleMain extends XposedModule {
                                 return result; // nothing to clear
                             }
 
-                            // Try constructor-based rebuild first (matching bsh reference)
+                            // Try constructor-based rebuild first
                             Object newBtn = rebuildMediaButton(result);
                             if (newBtn != null) {
-                                log(Log.INFO, TAG,
-                                        "event=custom_buttons_removed pkg=" + packageName
-                                                + " via=constructor");
                                 return newBtn;
                             }
 
                             // Fallback: directly null out custom0/custom1 via reflection
                             if (fCustom0 != null) {
-                                fCustom0.setAccessible(true);
-                                try {
-                                    Field modifiers = Field.class.getDeclaredField("accessFlags");
-                                    modifiers.setAccessible(true);
-                                    modifiers.setInt(fCustom0,
-                                            fCustom0.getModifiers() & ~java.lang.reflect.Modifier.FINAL);
-                                } catch (NoSuchFieldException ignored) {
-                                }
-                                fCustom0.set(result, null);
+                                setFinalField(fCustom0, result, null);
                             }
                             if (fCustom1 != null) {
-                                fCustom1.setAccessible(true);
-                                try {
-                                    Field modifiers = Field.class.getDeclaredField("accessFlags");
-                                    modifiers.setAccessible(true);
-                                    modifiers.setInt(fCustom1,
-                                            fCustom1.getModifiers() & ~java.lang.reflect.Modifier.FINAL);
-                                } catch (NoSuchFieldException ignored) {
-                                }
-                                fCustom1.set(result, null);
+                                setFinalField(fCustom1, result, null);
                             }
-
-                            log(Log.INFO, TAG,
-                                    "event=custom_buttons_removed pkg=" + packageName
-                                            + " via=reflection");
-
-                        } catch (Throwable t) {
-                            log(Log.ERROR, TAG, "event=hook_error", t);
+                        } catch (Throwable ignored) {
                         }
 
                         return result;
                     });
 
             installed = true;
-            log(Log.INFO, TAG, "event=hook_registered method=" + targetMethod);
-        } catch (ClassNotFoundException e) {
-            log(Log.WARN, TAG, "event=class_not_found", e);
-        } catch (Throwable t) {
-            log(Log.ERROR, TAG, "event=install_failed", t);
+        } catch (ClassNotFoundException ignored) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -196,6 +155,17 @@ public final class ModuleMain extends XposedModule {
         return null;
     }
 
+    private static void setFinalField(Field field, Object target, Object value) throws Exception {
+        field.setAccessible(true);
+        try {
+            Field modifiers = Field.class.getDeclaredField("accessFlags");
+            modifiers.setAccessible(true);
+            modifiers.setInt(field, field.getModifiers() & ~java.lang.reflect.Modifier.FINAL);
+        } catch (NoSuchFieldException ignored) {
+        }
+        field.set(target, value);
+    }
+
     private static Object rebuildMediaButton(Object originalBtn) {
         try {
             Class<?> btnClass = originalBtn.getClass();
@@ -223,8 +193,7 @@ public final class ModuleMain extends XposedModule {
                     );
                 }
             }
-        } catch (Throwable t) {
-            Log.w(TAG, "event=rebuild_failed", t);
+        } catch (Throwable ignored) {
         }
         return null;
     }
